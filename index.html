@@ -2,140 +2,71 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>匿名Discordチャット</title>
+  <title>DisHook</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --bg: #fafafa;
-      --fg: #000;
-      --card: #fff;
-      --shadow: rgba(0,0,0,0.1);
+      --bg: #fafafa; --fg: #000; --card: #fff; --shadow: rgba(0,0,0,0.1);
     }
-
     body.dark {
-      --bg: #1e1e1e;
-      --fg: #eee;
-      --card: #2a2a2a;
-      --shadow: rgba(0,0,0,0.6);
+      --bg: #1e1e1e; --fg: #eee; --card: #2a2a2a; --shadow: rgba(0,0,0,0.6);
     }
-
     body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: "Roboto", sans-serif;
-      margin: 0;
+      background: var(--bg); color: var(--fg); font-family: sans-serif; margin: 0;
     }
-
     header {
-      background: #4285f4;
-      color: white;
-      padding: 10px 20px;
-      font-size: 1.2em;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: #4285f4; color: white; padding: 10px 20px; font-size: 1.2em;
+      display: flex; justify-content: space-between; align-items: center;
     }
-
     main {
-      max-width: 700px;
-      margin: 20px auto;
-      background: var(--card);
-      padding: 20px;
-      box-shadow: 0 2px 10px var(--shadow);
+      max-width: 700px; margin: 20px auto; background: var(--card);
+      padding: 20px; box-shadow: 0 2px 10px var(--shadow);
     }
-
-    textarea {
-      width: 100%;
-      height: 80px;
-      resize: vertical;
-      padding: 10px;
-      font-size: 1em;
-      background: var(--bg);
-      color: var(--fg);
-      border: 1px solid #ccc;
+    textarea, input, select {
+      width: 100%; padding: 10px; font-size: 1em; margin-top: 8px;
+      background: var(--bg); color: var(--fg); border: 1px solid #ccc;
     }
-
-    input, select {
-      padding: 8px;
-      font-size: 1em;
-      margin: 5px 0;
-      width: 100%;
-      background: var(--bg);
-      color: var(--fg);
-      border: 1px solid #ccc;
-    }
-
     button {
-      background: #4285f4;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 1em;
-      cursor: pointer;
-      margin-top: 10px;
+      background: #4285f4; color: white; border: none; padding: 10px 20px;
+      font-size: 1em; cursor: pointer; margin-top: 10px;
     }
-
-    button:disabled {
-      background: #999;
-      cursor: not-allowed;
-    }
-
+    button:disabled { background: #999; cursor: not-allowed; }
     .row { margin-top: 10px; }
     .small { font-size: 0.9em; color: gray; }
-
     #centerNotify {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #4caf50;
-      color: white;
-      padding: 15px 25px;
-      font-size: 1.2em;
-      border-radius: 6px;
-      display: none;
-      z-index: 999;
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: #4caf50; color: white; padding: 15px 25px; font-size: 1.2em;
+      border-radius: 6px; display: none; z-index: 999;
       animation: fadeInOut 3s forwards;
     }
-
     @keyframes fadeInOut {
-      0% { opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { opacity: 0; }
+      0% { opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; }
     }
-
-    #tosModal {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+    #tosModal, #tokenWarnModal {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); display: flex;
+      justify-content: center; align-items: center; z-index: 1000;
     }
-
-    #tosModalContent {
-      background: white;
-      padding: 30px;
-      max-width: 600px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    #tosModalContent, #tokenWarnContent {
+      background: white; padding: 30px; max-width: 600px;
+      border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
-
-    #darkToggle {
-      background: #555;
-      font-size: 0.9em;
-      margin-left: 10px;
-    }
+    #darkToggle { background: #555; font-size: 0.9em; margin-left: 10px; }
   </style>
 </head>
 <body>
   <div id="tosModal">
     <div id="tosModalContent">
       <h2>利用規約</h2>
-      <p>本サービスは、DiscordのWebhookを通じて匿名で送信する実験的なツールです。不適切な言葉やスパムは禁止です。自己責任で利用してください。</p>
+      <p>本サービスは、DiscordのWebhookまたはユーザートークンを通じて匿名で送信する実験的なツールです。不適切な言葉やスパムは禁止です。自己責任で利用してください。</p>
       <button onclick="acceptTOS()">同意してはじめる</button>
+    </div>
+  </div>
+  <div id="tokenWarnModal" style="display:none">
+    <div id="tokenWarnContent">
+      <h2>ユーザートークン使用の警告</h2>
+      <p>ユーザートークンの使用はDiscordの利用規約に反する可能性があり、アカウント停止のリスクがあります。実験・検証目的で、自己責任のもとでご利用ください。</p>
+      <button onclick="acceptTokenWarning()">同意して続行</button>
     </div>
   </div>
 
@@ -149,25 +80,32 @@
 
   <main>
     <div class="row">
-      <label>送信先：</label>
+      <label>モード選択：</label>
+      <select id="modeSelect" onchange="switchMode()">
+        <option value="webhook">Webhookモード</option>
+        <option value="token">ユーザートークンモード</option>
+      </select>
+    </div>
+
+    <div class="row" id="webhookArea">
+      <label>送信先Webhook：</label>
       <select id="webhookSelect"></select>
     </div>
-    <div class="row">
-      <label>名前（省略可）：</label>
-      <input type="text" id="username" />
+
+    <div class="row" id="tokenArea" style="display:none">
+      <label>トークン名：</label>
+      <select id="tokenSelect"></select>
+      <label>サーバーID：</label>
+      <input type="text" id="guildIdInput" placeholder="サーバーIDを入力" oninput="loadChannels()" />
+      <label>チャンネル：</label>
+      <select id="channelSelect"></select>
     </div>
-    <div class="row">
-      <label>アイコンURL（省略可）：</label>
-      <input type="url" id="avatarUrl" />
-    </div>
-    <div class="row">
-      <label>画像（任意）：</label>
-      <input type="file" id="imageInput" accept="image/*" />
-    </div>
-    <div class="row">
-      <label>メッセージ：</label>
-      <textarea id="messageInput"></textarea>
-    </div>
+
+    <div class="row"><label>名前（Webhookのみ）：</label><input type="text" id="username" /></div>
+    <div class="row"><label>アイコンURL（Webhookのみ）：</label><input type="url" id="avatarUrl" /></div>
+    <div class="row"><label>画像（Webhookのみ）：</label><input type="file" id="imageInput" accept="image/*" /></div>
+    <div class="row"><label>メッセージ：</label><textarea id="messageInput"></textarea></div>
+
     <button id="sendButton" onclick="sendMessage()">送信</button>
     <p id="status" class="small"></p>
   </main>
@@ -176,6 +114,8 @@
     <form method="dialog">
       <h3>Webhook登録（最大5件）</h3>
       <div id="webhookInputs"></div>
+      <h3>ユーザートークン登録（最大3件）</h3>
+      <div id="tokenInputs"></div>
       <button type="submit">閉じる</button>
     </form>
   </dialog>
@@ -183,13 +123,18 @@
   <div id="centerNotify">送信しました</div>
 
   <script>
-    const NG_WORDS = ["死ね", "殺す", "ばか", "fuck", "shit"];
+    const NG_WORDS = ["死ね", "殺す", "ばか", "!nuke", "nuke", "!help"];
     const RATE_LIMIT_MS = 10000;
     let lastSentTime = 0;
 
     function acceptTOS() {
       localStorage.setItem("tosAccepted", "true");
       document.getElementById("tosModal").style.display = "none";
+    }
+
+    function acceptTokenWarning() {
+      localStorage.setItem("tokenWarnAccepted", "true");
+      document.getElementById("tokenWarnModal").style.display = "none";
     }
 
     function loadTheme() {
@@ -215,69 +160,147 @@
       });
     }
 
-    function openSettings() {
-      const data = JSON.parse(localStorage.getItem("webhooks") || "[]");
-      const wrap = document.getElementById("webhookInputs");
-      wrap.innerHTML = "";
-      for (let i = 0; i < 5; i++) {
-        const obj = data[i] || { name: "", url: "" };
-        const name = document.createElement("input");
-        const url = document.createElement("input");
-        name.placeholder = "名前";
-        url.placeholder = "URL";
-        name.value = obj.name;
-        url.value = obj.url;
-        wrap.append(name, url, document.createElement("br"));
+    function loadTokens() {
+      const data = JSON.parse(localStorage.getItem("tokens") || "[]");
+      const sel = document.getElementById("tokenSelect");
+      sel.innerHTML = "";
+      data.forEach(entry => {
+        const opt = document.createElement("option");
+        opt.value = entry.token;
+        opt.textContent = entry.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    function switchMode() {
+      const mode = document.getElementById("modeSelect").value;
+      document.getElementById("webhookArea").style.display = mode === "webhook" ? "block" : "none";
+      document.getElementById("tokenArea").style.display = mode === "token" ? "block" : "none";
+      if (mode === "token" && localStorage.getItem("tokenWarnAccepted") !== "true") {
+        document.getElementById("tokenWarnModal").style.display = "flex";
       }
+    }
+
+    function openSettings() {
+      const wdata = JSON.parse(localStorage.getItem("webhooks") || "[]");
+      const tdata = JSON.parse(localStorage.getItem("tokens") || "[]");
+
+      const wwrap = document.getElementById("webhookInputs");
+      wwrap.innerHTML = "";
+      for (let i = 0; i < 5; i++) {
+        const obj = wdata[i] || { name: "", url: "" };
+        wwrap.innerHTML += `<input placeholder="名前" value="${obj.name||''}"><input placeholder="URL" value="${obj.url||''}"><br>`;
+      }
+
+      const twrap = document.getElementById("tokenInputs");
+      twrap.innerHTML = "";
+      for (let i = 0; i < 3; i++) {
+        const obj = tdata[i] || { name: "", token: "" };
+        twrap.innerHTML += `<input placeholder="名前" value="${obj.name||''}"><input placeholder="トークン" value="${obj.token||''}"><br>`;
+      }
+
       document.getElementById("settingsDialog").onsubmit = () => {
-        const inputs = wrap.querySelectorAll("input");
-        const newData = [];
-        for (let i = 0; i < inputs.length; i += 2) {
-          const name = inputs[i].value.trim();
-          const url = inputs[i + 1].value.trim();
-          if (url.startsWith("https://")) newData.push({ name, url });
+        const winputs = wwrap.querySelectorAll("input");
+        const tinputs = twrap.querySelectorAll("input");
+        const wnew = [];
+        const tnew = [];
+        for (let i = 0; i < winputs.length; i += 2) {
+          const name = winputs[i].value.trim();
+          const url = winputs[i+1].value.trim();
+          if (url.startsWith("https://")) wnew.push({ name, url });
         }
-        localStorage.setItem("webhooks", JSON.stringify(newData));
+        for (let i = 0; i < tinputs.length; i += 2) {
+          const name = tinputs[i].value.trim();
+          const token = tinputs[i+1].value.trim();
+          if (token) tnew.push({ name, token });
+        }
+        localStorage.setItem("webhooks", JSON.stringify(wnew));
+        localStorage.setItem("tokens", JSON.stringify(tnew));
         loadWebhooks();
+        loadTokens();
       };
       document.getElementById("settingsDialog").showModal();
+    }
+
+    async function loadChannels() {
+      const token = document.getElementById("tokenSelect").value;
+      const guildId = document.getElementById("guildIdInput").value.trim();
+      if (!token || !guildId) return;
+
+      try {
+        const res = await fetch(`https://discord.com/api/guilds/${guildId}/channels`, {
+          headers: { Authorization: token }
+        });
+        const channels = await res.json();
+        const sel = document.getElementById("channelSelect");
+        sel.innerHTML = "";
+        channels.filter(c => c.type === 0).forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.id;
+          opt.textContent = c.name;
+          sel.appendChild(opt);
+        });
+      } catch {
+        alert("チャンネル取得に失敗しました。サーバーIDやトークンを確認してください。");
+      }
     }
 
     async function sendMessage() {
       const now = Date.now();
       if (now - lastSentTime < RATE_LIMIT_MS) return alert("10秒空けてください");
 
-      const url = document.getElementById("webhookSelect").value;
+      const mode = document.getElementById("modeSelect").value;
       const name = document.getElementById("username").value;
       const avatar = document.getElementById("avatarUrl").value;
       const content = document.getElementById("messageInput").value;
-      if (!url) return alert("Webhook未選択");
+      const file = document.getElementById("imageInput").files[0];
+
       if (!content.trim()) return alert("メッセージが空です");
       if (content.length > 300) return alert("300文字以内で送信してください");
       if (content.includes("@")) return alert("メンションは禁止です");
+      if (NG_WORDS.some(w => content.toLowerCase().includes(w))) return alert("この文字列は使用できません");
 
-      const lowered = content.toLowerCase();
-      if (NG_WORDS.some(w => lowered.includes(w))) return alert("不適切な言葉が含まれています");
-
-      const file = document.getElementById("imageInput").files[0];
       const btn = document.getElementById("sendButton");
       btn.disabled = true;
 
-      const form = new FormData();
-      form.append("payload_json", JSON.stringify({
+      const payload = {
         username: name || undefined,
         avatar_url: avatar || undefined,
         content
-      }));
+      };
+
+      const form = new FormData();
+      form.append("payload_json", JSON.stringify(payload));
       if (file) form.append("file", file);
 
-      const res = await fetch(url, { method: "POST", body: form });
+      let res;
+      if (mode === "webhook") {
+        const url = document.getElementById("webhookSelect").value;
+        if (!url) return alert("Webhook未選択");
+        res = await fetch(url, { method: "POST", body: form });
+      } else {
+        const token = document.getElementById("tokenSelect").value;
+        const channelId = document.getElementById("channelSelect").value;
+        if (!channelId) return alert("チャンネル未選択");
+        if (file) {
+          alert("画像送信はWebhookモードでのみ対応しています");
+          btn.disabled = false;
+          return;
+        }
+        res = await fetch(`https://discord.com/api/channels/${channelId}/messages`, {
+          method: "POST",
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ content })
+        });
+      }
+
       btn.disabled = false;
       if (res.ok) {
         document.getElementById("centerNotify").style.display = "block";
-        setTimeout(() => {
-          document.getElementById("centerNotify").style.display = "none";
-        }, 3000);
+        setTimeout(() => document.getElementById("centerNotify").style.display = "none", 3000);
         document.getElementById("messageInput").value = "";
         document.getElementById("imageInput").value = "";
         lastSentTime = now;
@@ -292,8 +315,10 @@
       }
       loadTheme();
       loadWebhooks();
+      loadTokens();
     };
   </script>
 </body>
 </html>
+
 
