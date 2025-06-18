@@ -101,9 +101,9 @@
       <select id="channelSelect"></select>
     </div>
 
-    <div class="row"><label>名前（Webhookのみ）：</label><input type="text" id="username" /></div>
-    <div class="row"><label>アイコンURL（Webhookのみ）：</label><input type="url" id="avatarUrl" /></div>
-    <div class="row"><label>画像（Webhookのみ）：</label><input type="file" id="imageInput" accept="image/*" /></div>
+    <div class="row webhook-only"><label>名前（Webhookのみ）：</label><input type="text" id="username" /></div>
+    <div class="row webhook-only"><label>アイコンURL（Webhookのみ）：</label><input type="url" id="avatarUrl" /></div>
+    <div class="row webhook-only"><label>画像（Webhookのみ）：</label><input type="file" id="imageInput" accept="image/*" /></div>
     <div class="row"><label>メッセージ：</label><textarea id="messageInput"></textarea></div>
 
     <button id="sendButton" onclick="sendMessage()">送信</button>
@@ -175,6 +175,7 @@
     function switchMode() {
       const mode = document.getElementById("modeSelect").value;
       document.getElementById("webhookArea").style.display = mode === "webhook" ? "block" : "none";
+      document.querySelector("webhook-only").style.display = mode === "webhook" ? "block" : "none";
       document.getElementById("tokenArea").style.display = mode === "token" ? "block" : "none";
       if (mode === "token" && localStorage.getItem("tokenWarnAccepted") !== "true") {
         document.getElementById("tokenWarnModal").style.display = "flex";
